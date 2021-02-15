@@ -53,8 +53,11 @@ extern "C"
 #include <pointer-analysis/show_value_sets.h>
 #include <pointer-analysis/value_set_analysis.h>
 #include <util/symbol.h>
-#include <sys/wait.h>
 #include <util/time_stopping.h>
+
+#ifndef _WIN32
+#include <sys/wait.h>
+#endif
 
 #ifdef ENABLE_OLD_FRONTEND
 #include <ansi-c/c_preprocess.h>
@@ -238,6 +241,9 @@ void esbmc_parseoptionst::get_command_line_options(optionst &options)
   }
   else
     options.set_option("deadlock-check", false);
+
+  if(cmdline.isset("compact-trace"))
+    options.set_option("no-slice", true);
 
   if(cmdline.isset("smt-during-symex"))
   {
@@ -423,6 +429,10 @@ int esbmc_parseoptionst::doit()
 
 int esbmc_parseoptionst::doit_k_induction_parallel()
 {
+#ifdef _WIN32
+  std::cerr << "Windows does not support parallel kind\n";
+  abort();
+#else
   // Pipes for communication between processes
   int forward_pipe[2], backward_pipe[2];
 
@@ -984,6 +994,8 @@ int esbmc_parseoptionst::doit_k_induction_parallel()
   default:
     assert(0 && "Unknown process type.");
   }
+
+#endif
 
   return 0;
 }
@@ -1657,6 +1669,7 @@ void esbmc_parseoptionst::help()
        "\nTrace options\n"
        " --quiet                      do not print unwinding information "
        "during symbolic execution\n"
+       " --compact-trace              do not print hidden variables\n"
        " --symex-trace                print instructions during symbolic "
        "execution\n"
        " --symex-ssa-trace            print generated SSA during symbolic "
