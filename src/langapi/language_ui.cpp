@@ -13,6 +13,8 @@ Author: Daniel Kroening, kroening@cs.cmu.edu
 #include <util/i2string.h>
 #include <util/show_symbol_table.h>
 
+extern std::string plaintext_ast;
+
 static ui_message_handlert::uit get_ui_cmdline(const cmdlinet &cmdline)
 {
   if(cmdline.isset("gui"))
@@ -74,7 +76,14 @@ bool language_uit::parse(const std::string &filename)
   lf.language = mode_table[mode].new_language();
   languaget &language = *lf.language;
 
+  // TODO: filename == json AST, also need to pass in plain text AST - set the path!
   status("Parsing", filename);
+
+  if(mode == 4)
+      language.set_is_solidity();
+
+  if(language.get_is_solidity())
+      language.set_plaintext_ast(plaintext_ast);
 
   if(language.parse(filename, *get_message_handler()))
   {

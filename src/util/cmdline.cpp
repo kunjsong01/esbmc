@@ -12,6 +12,7 @@ Author: Daniel Kroening, kroening@kroening.com
 #include <util/cmdline.h>
 
 std::string verification_file;
+std::string plaintext_ast; // Solidity's plaintext AST file
 
 cmdlinet::~cmdlinet()
 {
@@ -143,7 +144,7 @@ bool cmdlinet::parse(int argc, const char **argv, const struct opt_templ *opts)
     {
       int optnr;
 
-      if(argv[i][1] == '-')
+      if(argv[i][1] == '-') // deal with argument prefixed with "--"
         optnr = getoptnr(argv[i] + 2);
       else
         optnr = getoptnr(argv[i][1]);
@@ -155,7 +156,7 @@ bool cmdlinet::parse(int argc, const char **argv, const struct opt_templ *opts)
       }
 
       options[optnr].isset = true;
-      if(options[optnr].hasval)
+      if(options[optnr].hasval) // 'val' refers to the path as in "-I /path/to/include/dir"
       {
         if(argv[i][2] == 0 || options[optnr].islong)
         {
@@ -165,6 +166,12 @@ bool cmdlinet::parse(int argc, const char **argv, const struct opt_templ *opts)
           if(argv[i][0] == '-')
             return true;
           options[optnr].values.emplace_back(argv[i]);
+
+          // for Solidity plaintext AST
+          if(options[optnr].optchar == 'A')
+          {
+            plaintext_ast = options[optnr].values.back();
+          }
         }
         else
           options[optnr].values.emplace_back(argv[i] + 2);
@@ -190,5 +197,5 @@ bool cmdlinet::parse(int argc, const char **argv, const struct opt_templ *opts)
     options[optnr].values.push_back(opts[i].init);
   }
 
-  return false;
+  return false; // return false if everything is fine
 }
