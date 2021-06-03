@@ -239,7 +239,7 @@ bool clang_c_languaget::typecheck(
   if(adjuster.adjust())
     return true;
 
-  if(c_link(context, new_context, message_handler, module))
+  if(c_link(context, new_context, message_handler, module)) // also populates language_uit::context
     return true;
 
   return false;
