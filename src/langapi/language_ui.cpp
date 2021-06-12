@@ -73,13 +73,12 @@ bool language_uit::parse(const std::string &filename)
 
   language_filet &lf = result.first->second;
   lf.filename = filename;
-  lf.language = mode_table[mode].new_language();
+  lf.language = mode_table[mode].new_language(); // instantiate clang_c_languaget object or other languages' counterpart
   languaget &language = *lf.language;
 
-  // TODO: filename == json AST, also need to pass in plain text AST - set the path!
   status("Parsing", filename);
 
-  if(mode == 2)
+  if(mode == 2) // 0 for clang-c, 2 for Solidity
       language.set_is_solidity();
 
   if(language.get_is_solidity())
