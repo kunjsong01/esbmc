@@ -224,6 +224,15 @@ bool clang_c_languaget::parse(
   return false;
 }
 
+bool clang_c_languaget::convert_intrinsics(contextt &context)
+{
+  clang_c_convertert converter(context, ASTs);
+  if(converter.convert())
+    return true;
+
+  return false;
+}
+
 bool clang_c_languaget::typecheck(
   contextt &context,
   const std::string &module,

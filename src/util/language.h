@@ -53,6 +53,12 @@ public:
     const std::string &module,
     message_handlert &message_handler) = 0;
 
+  virtual bool convert_intrinsics(contextt &context)
+  {
+    assert(!"please implement your own convert intrinsics");
+    return false;
+  }
+
   // language id / description
   virtual std::string id() const
   {
