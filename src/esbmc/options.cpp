@@ -69,8 +69,8 @@ const struct opt_templ esbmc_options[] = {
   {0, "i386-win32", switc, ""},
   {0, "ppc-macos", switc, ""},
 
-  // Frontend - solidity plain ast and json ast
-  {'A', "", string, ""},
+  // set file that contains a dummy main for Solidity verification
+  {'M', "", string, ""},
 
   // BMC
   {0, "function", string, ""},

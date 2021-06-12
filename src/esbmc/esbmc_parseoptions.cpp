@@ -1686,7 +1686,7 @@ void esbmc_parseoptionst::help()
        "\nFront-end options\n"
        " -I path                      set include path\n"
        " -D macro                     define preprocessor macro\n"
-       " -A path                      set Solidity plain AST path\n"
+       " -M path                      file that contains a dummy main for Solidity verification\n"
        " --preprocess                 stop after preprocessing\n"
        " --no-inlining                disable inlining function calls\n"
        " --full-inlining              perform full inlining of function calls\n"

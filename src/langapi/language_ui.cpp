@@ -13,7 +13,7 @@ Author: Daniel Kroening, kroening@cs.cmu.edu
 #include <util/i2string.h>
 #include <util/show_symbol_table.h>
 
-extern std::string plaintext_ast;
+extern std::string sol_main;
 
 static ui_message_handlert::uit get_ui_cmdline(const cmdlinet &cmdline)
 {
@@ -79,11 +79,11 @@ bool language_uit::parse(const std::string &filename)
   // TODO: filename == json AST, also need to pass in plain text AST - set the path!
   status("Parsing", filename);
 
-  if(mode == 4)
+  if(mode == 2)
       language.set_is_solidity();
 
   if(language.get_is_solidity())
-      language.set_plaintext_ast(plaintext_ast);
+      language.set_solidity_main(sol_main);
 
   if(language.parse(filename, *get_message_handler()))
   {

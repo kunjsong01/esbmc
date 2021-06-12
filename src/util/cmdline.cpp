@@ -12,7 +12,7 @@ Author: Daniel Kroening, kroening@kroening.com
 #include <util/cmdline.h>
 
 std::string verification_file;
-std::string plaintext_ast; // Solidity's plaintext AST file
+std::string sol_main; // file that contains a dummy main for Solidity verification
 
 cmdlinet::~cmdlinet()
 {
@@ -167,10 +167,10 @@ bool cmdlinet::parse(int argc, const char **argv, const struct opt_templ *opts)
             return true;
           options[optnr].values.emplace_back(argv[i]);
 
-          // for Solidity plaintext AST
-          if(options[optnr].optchar == 'A')
+          // file that contains a dummy main for Solidity verification
+          if(options[optnr].optchar == 'M')
           {
-            plaintext_ast = options[optnr].values.back();
+            sol_main = options[optnr].values.back();
           }
         }
         else
