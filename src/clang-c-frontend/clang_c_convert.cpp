@@ -88,6 +88,8 @@ bool clang_c_convertert::convert_top_level_decl()
 // but then get_decl_expr is called instead
 bool clang_c_convertert::get_decl(const clang::Decl &decl, exprt &new_expr)
 {
+  static int call_times = 0; // TODO: remove debug
+
   new_expr = code_skipt();
 
   switch(decl.getKind())
@@ -95,6 +97,8 @@ bool clang_c_convertert::get_decl(const clang::Decl &decl, exprt &new_expr)
   // Label declaration
   case clang::Decl::Label:
   {
+    printf("	@@got Decl: clang::Decl::Label, ");
+    printf("call_times=%d\n", call_times++);
     const clang::LabelDecl &ld = static_cast<const clang::LabelDecl &>(decl);
 
     exprt label("label", empty_typet());
@@ -108,6 +112,8 @@ bool clang_c_convertert::get_decl(const clang::Decl &decl, exprt &new_expr)
   // Declaration of variables
   case clang::Decl::Var:
   {
+    printf("	@@got Decl: clang::Decl::Var\n");
+    printf("call_times=%d\n", call_times++);
     const clang::VarDecl &vd = static_cast<const clang::VarDecl &>(decl);
     return get_var(vd, new_expr);
   }
@@ -115,6 +121,8 @@ bool clang_c_convertert::get_decl(const clang::Decl &decl, exprt &new_expr)
   // Declaration of function's parameter
   case clang::Decl::ParmVar:
   {
+    printf("	@@got Decl: clang::Decl::ParmVar\n");
+    printf("call_times=%d\n", call_times++);
     const clang::ParmVarDecl &param =
       static_cast<const clang::ParmVarDecl &>(decl);
     return get_function_params(param, new_expr);
@@ -123,6 +131,8 @@ bool clang_c_convertert::get_decl(const clang::Decl &decl, exprt &new_expr)
   // Declaration of functions
   case clang::Decl::Function:
   {
+    printf("	@@got Decl: clang::Decl::Function\n");
+    printf("call_times=%d\n", call_times++);
     const clang::FunctionDecl &fd =
       static_cast<const clang::FunctionDecl &>(decl);
 
@@ -136,6 +146,8 @@ bool clang_c_convertert::get_decl(const clang::Decl &decl, exprt &new_expr)
   // Field inside a struct/union
   case clang::Decl::Field:
   {
+    printf("	@@got Decl: clang::Decl::Field\n");
+    printf("call_times=%d\n", call_times++);
     const clang::FieldDecl &fd = static_cast<const clang::FieldDecl &>(decl);
 
     typet t;
@@ -163,6 +175,8 @@ bool clang_c_convertert::get_decl(const clang::Decl &decl, exprt &new_expr)
 
   case clang::Decl::IndirectField:
   {
+    printf("	@@got Decl: clang::Decl::IndirectField\n");
+    printf("call_times=%d\n", call_times++);
     const clang::IndirectFieldDecl &fd =
       static_cast<const clang::IndirectFieldDecl &>(decl);
 
@@ -192,6 +206,8 @@ bool clang_c_convertert::get_decl(const clang::Decl &decl, exprt &new_expr)
   // A record is a struct/union/class/enum
   case clang::Decl::Record:
   {
+    printf("	@@got Decl: clang::Decl::Record\n");
+    printf("call_times=%d\n", call_times++);
     const clang::RecordDecl &record =
       static_cast<const clang::RecordDecl &>(decl);
 
@@ -203,6 +219,8 @@ bool clang_c_convertert::get_decl(const clang::Decl &decl, exprt &new_expr)
 
   case clang::Decl::TranslationUnit:
   {
+    printf("	@@got Decl: clang::Decl::TranslationUnit\n");
+    printf("call_times=%d\n", call_times++);
     const clang::TranslationUnitDecl &tu =
       static_cast<const clang::TranslationUnitDecl &>(decl);
 
@@ -222,22 +240,46 @@ bool clang_c_convertert::get_decl(const clang::Decl &decl, exprt &new_expr)
   // This is an empty declaration. An lost semicolon on the
   // code is an empty declaration
   case clang::Decl::Empty:
+  {
+    printf("	@@got Decl: clang::Decl::Empty\n");
+    printf("call_times=%d\n", call_times++);
+    break;
+  }
 
   // If this fails, clang will not generate the ASTs, we can
   // safely skip it
   case clang::Decl::StaticAssert:
+  {
+    printf("	@@got Decl: clang::Decl::StaticAssert\n");
+    printf("call_times=%d\n", call_times++);
+    break;
+  }
 
   // Enum declaration and values, we can safely skip them as
   // any occurrence of those will be converted to int type (enum)
   // or integer value (enum constant)
   case clang::Decl::Enum:
+  {
+    printf("	@@got Decl: clang::Decl::Enum\n");
+    printf("call_times=%d\n", call_times++);
+    break;
+  }
   case clang::Decl::EnumConstant:
+  {
+    printf("	@@got Decl: clang::Decl::EnumConstant\n");
+    printf("call_times=%d\n", call_times++);
+    break;
+  }
 
   // Typedef declaration, we can ignore this; clang will give us
   // the underlying type defined by the typedef, so we don't need
   // to add them to the context
   case clang::Decl::Typedef:
+  {
+    printf("	@@got Decl: clang::Decl::Typedef\n");
+    printf("call_times=%d\n", call_times++);
     break;
+  }
 
   default:
     std::cerr << "**** ERROR: ";
@@ -412,7 +454,7 @@ bool clang_c_convertert::get_var(const clang::VarDecl &vd, exprt &new_expr)
     return true;
 
   // Check if we annotated it to be have an infinity size
-  if(vd.hasAttrs())
+  if(vd.hasAttrs()) // false for _x, _y and sum
   {
     for(auto const &attr : vd.getAttrs())
     {
@@ -519,13 +561,14 @@ bool clang_c_convertert::get_function(const clang::FunctionDecl &fd, exprt &)
   locationt location_begin;
   get_location_from_decl(fd, location_begin);
 
-  std::string id, name;
+  std::string id, name; // __ESBMC_assume and c:@F@__ESBMC_assume
   get_decl_name(fd, name, id);
 
   symbolt symbol;
+  std::string debug_modulename = get_modulename_from_path(location_begin.file().as_string());
   get_default_symbol(
     symbol,
-    get_modulename_from_path(location_begin.file().as_string()),
+    debug_modulename,
     type,
     name,
     id,
@@ -540,23 +583,26 @@ bool clang_c_convertert::get_function(const clang::FunctionDecl &fd, exprt &)
 
   // We convert the parameters first so their symbol are added to context
   // before converting the body, as they may appear on the function body
-  for(auto const &pdecl : fd.parameters())
+  unsigned num_param_decl = 0;
+  for(auto const &pdecl : fd.parameters()) // for func_overflow, it does NOT have any args
   {
     code_typet::argumentt param;
     if(get_function_params(*pdecl, param))
       return true;
 
     type.arguments().push_back(param);
+    ++num_param_decl;
   }
+  printf("@@@ number of param decls: %u\n", num_param_decl);
 
   // Apparently, if the type has no arguments, we assume ellipsis
-  if(!type.arguments().size())
+  if(!type.arguments().size()) // for func_overflow, size is 0. for __ESBMC_assume, type.arguments().size() == 1
     type.make_ellipsis();
 
   added_symbol.type = type;
 
   // We need: a type, a name, and an optional body
-  if(fd.hasBody())
+  if(fd.hasBody()) // for func_overflow, this returns true. for __ESBMC_assume, fd.hasBody() return false
   {
     exprt body_exprt;
     if(get_expr(*fd.getBody(), body_exprt))
@@ -566,7 +612,7 @@ bool clang_c_convertert::get_function(const clang::FunctionDecl &fd, exprt &)
   }
 
   // Restore old functionDecl
-  current_functionDecl = old_functionDecl;
+  current_functionDecl = old_functionDecl; // for __ESBMC_assume, old_functionDecl == null
 
   return false;
 }
@@ -586,12 +632,12 @@ bool clang_c_convertert::get_function_params(
     param_type.remove("#constant");
   }
 
-  std::string id, name;
+  std::string id, name; // for __ESBMC_assume, both id and name will be empty because its decl does not have a parameter name!
   get_decl_name(pd, name, id);
 
   param = code_typet::argumentt();
   param.type() = param_type;
-  param.cmt_base_name(name);
+  param.cmt_base_name(name); // for __ESBMC_assume, this name refers to the param name. Name is still "".
 
   // If the name is empty, this is an function definition that we don't
   // need to worry about as the function params name's will be defined
@@ -1693,6 +1739,7 @@ bool clang_c_convertert::get_expr(const clang::Stmt &stmt, exprt &new_expr)
       static_cast<const clang::CompoundStmt &>(stmt);
 
     code_blockt block;
+    unsigned ctr = 0;
     for(auto const &stmt : compound_stmt.body())
     {
       exprt statement;
@@ -1701,7 +1748,9 @@ bool clang_c_convertert::get_expr(const clang::Stmt &stmt, exprt &new_expr)
 
       convert_expression_to_code(statement);
       block.operands().push_back(statement);
+      ++ctr;
     }
+    printf(" \t @@@ CompoundStmt has %u statements\n", ctr);
 
     // Set the end location for blocks
     locationt location_end;
@@ -2088,7 +2137,7 @@ bool clang_c_convertert::get_decl_ref(const clang::Decl &d, exprt &new_expr)
   if(const auto *nd = llvm::dyn_cast<clang::ValueDecl>(&d))
   {
     // Everything else should be a value decl
-    std::string name, id;
+    std::string name, id; // for "_x = 100;", id="c:@_x" and name="_x".
     get_decl_name(*nd, name, id);
 
     typet type;
@@ -2675,7 +2724,7 @@ void clang_c_convertert::get_default_symbol(
 static std::string get_decl_name(const clang::NamedDecl &nd)
 {
   if(const clang::IdentifierInfo *identifier = nd.getIdentifier())
-    return identifier->getName().str();
+    return identifier->getName().str(); // for __ESBMC_assume, just return "__ESBMC_assume"
 
   std::string name;
   llvm::raw_string_ostream rso(name);
@@ -2701,7 +2750,7 @@ void clang_c_convertert::get_decl_name(
 {
   id = name = ::get_decl_name(nd);
 
-  switch(nd.getKind())
+  switch(nd.getKind()) // it's our declClass in Solidity! same as being used in get_decl
   {
   // ParamVarDecl, we can safely ignore them
   case clang::Decl::ParmVar:
@@ -2753,7 +2802,7 @@ void clang_c_convertert::get_decl_name(
     break;
 
   default:
-    if(name.empty())
+    if(name.empty()) // print name gives the function name when this is part of get_function back traces
     {
       std::cerr << "Declaration has an empty name:\n";
       nd.dumpColor();
@@ -2764,7 +2813,7 @@ void clang_c_convertert::get_decl_name(
   clang::SmallString<128> DeclUSR;
   if(!clang::index::generateUSRForDecl(&nd, DeclUSR))
   {
-    id = DeclUSR.str().str();
+    id = DeclUSR.str().str(); // for __ESBMC_assume, it returns "c:@F@__ESBMC_assume"
     return;
   }
 
@@ -2827,7 +2876,7 @@ void clang_c_convertert::get_location_from_decl(
   clang::PresumedLoc PLoc;
   get_presumed_location(decl.getSourceRange().getBegin(), PLoc);
 
-  set_location(PLoc, function_name, location);
+  set_location(PLoc, function_name, location); // for __ESBMC_assume, function_name is still empty after this line.
 }
 
 void clang_c_convertert::get_presumed_location(
@@ -2852,8 +2901,8 @@ void clang_c_convertert::set_location(
     return;
   }
 
-  location.set_line(PLoc.getLine());
-  location.set_file(get_filename_from_path(PLoc.getFilename()));
+  location.set_line(PLoc.getLine()); // line number : unsigned signed
+  location.set_file(get_filename_from_path(PLoc.getFilename())); // string : path + file name
 
   if(!function_name.empty())
     location.set_function(function_name);
