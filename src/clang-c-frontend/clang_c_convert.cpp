@@ -1446,6 +1446,7 @@ bool clang_c_convertert::get_expr(const clang::Stmt &stmt, exprt &new_expr)
     call.function() = callee_expr;
     call.type() = type;
 
+    unsigned num_args = 0;
     for(const clang::Expr *arg : function_call.arguments())
     {
       exprt single_arg;
@@ -1453,7 +1454,9 @@ bool clang_c_convertert::get_expr(const clang::Stmt &stmt, exprt &new_expr)
         return true;
 
       call.arguments().push_back(single_arg);
+      ++num_args;
     }
+    printf("  @@ num_args=%u\n", num_args);
 
     new_expr = call;
     break;
